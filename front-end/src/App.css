@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    height: 100dvh;
+    width: 100dvw;
+    display: flex;
+    flex-direction: column;
+}
+
+h1,
+h2 {
+    text-align: center;
+    margin: 0;
+}
+
+.title {
+    padding-block: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.countries-container {
+    padding: 20px 40px;
+    overflow-y: auto;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    row-gap: 10px;
+    max-height: calc(100dvh - 75px);
+}
+
+.card {
+    
+}

@@ -1,10 +1,22 @@
 import axios from "axios";
 import { config } from "dotenv";
 import express from "express";
+import cors from "cors";
 config();
 
 const app = express();
 const port = process.env.PORT;
+
+app.use(cors());
+
+const corsOptions = {
+    origin: ["http://localhost:5173"], // Dominios permitidos
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos HTTP permitidos
+    allowedHeaders: ["Content-Type", "Authorization"], // Headers permitidos
+    exposedHeaders: ["Content-Range", "X-Content-Range"], // Headers expuestos al cliente
+    credentials: true, // Permite credenciales (cookies, auth headers)
+    maxAge: 86400, // Tiempo de cache preflight en segundos
+};
 
 app.get("/get_available_countries", async (req, res) => {
     try {
@@ -53,9 +65,13 @@ app.get("/get_country_info/:country_code", async (req, res) => {
         const flag_url = flag_response.data.flag;
 
         res.send({
-            border_countries,
-            population_data,
-            flag_url,
+            error: false,
+            data: {
+                border_countries,
+                population_data,
+                flag_url,
+                country_name,
+            },
         });
     } catch (error) {
         res.status(502).send({

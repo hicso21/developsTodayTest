@@ -2,8 +2,17 @@
 
 ## Back-end
 
-### To start the backend server, first we will stop in the root folder, add the .env file where the base urls and the port will be included and then use the npm install or yarn command to install the dependencies. Then we can start the server using npm run start or yarn run start.
+### To start:
+### In the root folder, add the .env file where the base urls and the port will be included
+### Then use the npm install or yarn command to install the dependencies.
+### Then we can start the server using npm run start or yarn run start.
 
 ## Front-end
 
-### for the front, use npm run start or yarn run start
+### Position in the root file in the console
+### Execute the command npm install or yarn
+### Run npm run dev or yarn run dev
+
+## Comments
+
+### Don't forget to build the backend before using the front end in order to make use of the api, otherwise you won't be able to use the web.

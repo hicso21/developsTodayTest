@@ -29,15 +29,13 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import useWindowWidth from "../hooks/useWindowWidth";
+import Loader from "../commons/Loader";
 
-export default function CountryInfo() {
-    const [countryData, setCountryData] = useState({});
-    const [populationData, setPopulationData] = useState([]);
-    const { country_code } = useParams();
-    const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState(false);
-    const [accordionOpen, setAccordionOpen] = useState(false);
-    const windowWidth = useWindowWidth();
+const countryDataFetcher = ({ isLoading, setIsLoading }) => {
+    const [data, setData] = useState({
+        countryData: {},
+        population: [],
+    });
 
     const fetch = async () => {
         setIsLoading(true);
@@ -46,16 +44,19 @@ export default function CountryInfo() {
                 `/get_country_info/${country_code}`
             );
             console.log(countryDataAPI);
-            if (countryDataAPI.error) {
+            if (countryDataAPI?.error) {
                 setIsLoading(false);
                 return toast.error("An error has ocurred");
             }
-            setCountryData(countryDataAPI.data);
-            setPopulationData(countryDataAPI.data.population_data);
-            setIsLoading(false);
+            const countryData = countryDataAPI?.data;
+            const population = countryDataAPI?.data?.population_data;
+            setData({ countryData, population });
         } catch (error) {
-            setCountryData({});
-            setPopulationData([]);
+            setData({
+                countryData: {},
+                population: [],
+            });
+            toast.error("An error has ocurred");
         } finally {
             setIsLoading(false);
         }
@@ -63,42 +64,25 @@ export default function CountryInfo() {
 
     useEffect(() => {
         fetch();
+    }, []);
+
+    return data;
+};
+
+export default function CountryInfo() {
+    const { country_code } = useParams();
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [accordionOpen, setAccordionOpen] = useState(false);
+    const windowWidth = useWindowWidth();
+    const data = countryDataFetcher({ isLoading, setIsLoading });
+
+    useEffect(() => {
+        fetch();
     }, [country_code]);
 
     return isLoading ? (
-        <main>
-            <Flex
-                position={"fixed"}
-                top={"10px"}
-                left={"10px"}
-                cursor={"pointer"}
-                alignItems={"center"}
-                gap={"5px"}
-                onClick={() => {
-                    navigate("/");
-                }}
-            >
-                <ArrowBackIcon />
-                <Text>Back</Text>
-            </Flex>
-            <Flex
-                flexDirection={"column"}
-                width={"100%"}
-                height={"100%"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                gap={"10px"}
-            >
-                <CircularProgress
-                    color="#ff5d00"
-                    isIndeterminate
-                    size={"100px"}
-                />
-                <Text fontSize={"xl"} fontWeight={"bold"}>
-                    Loading
-                </Text>
-            </Flex>
-        </main>
+        <Loader backRoute={"/"} />
     ) : Object.values(countryData).length == 0 ? (
         <main>
             <Flex
@@ -148,11 +132,11 @@ export default function CountryInfo() {
                 height={"100%"}
             >
                 <Text fontSize={"5xl"} className="title">
-                    {countryData.country_name}
+                    {data?.countryData.country_name}
                 </Text>
                 <Flex alignItems={"start"}>
                     <Image
-                        src={countryData.flag_url}
+                        src={data?.countryData.flag_url}
                         width={"40dvw"}
                         maxWidth={"450px"}
                         objectFit={"contain"}
@@ -163,7 +147,7 @@ export default function CountryInfo() {
                         justifyContent={"center"}
                         height={"100%"}
                     >
-                        {countryData?.border_countries.length == 0 ? (
+                        {data?.countryData?.border_countries.length == 0 ? (
                             <Text marginBlock={"auto"}>
                                 No bordering countries
                             </Text>
@@ -188,7 +172,7 @@ export default function CountryInfo() {
                                         <AccordionIcon />
                                     </AccordionButton>
                                     <AccordionPanel>
-                                        {countryData?.border_countries?.map(
+                                        {data?.countryData?.border_countries?.map(
                                             (borderCountry) => (
                                                 <Text
                                                     cursor={"pointer"}
@@ -211,7 +195,7 @@ export default function CountryInfo() {
                     </Box>
                 </Flex>
                 <Flex justifyContent={"center"} paddingTop={"30px"} flex={1}>
-                    <Card >
+                    <Card>
                         <CardHeader>
                             <Text
                                 fontSize={"2xl"}
@@ -227,11 +211,9 @@ export default function CountryInfo() {
                                     windowWidth <= 480 ? 350 : windowWidth - 100
                                 }
                                 height={windowWidth <= 480 ? 400 : 300}
-                                data={populationData}
+                                data={data?.population}
                             >
-                                <XAxis
-                                    dataKey="year"
-                                />
+                                <XAxis dataKey="year" />
                                 <YAxis
                                     tickFormatter={(value) =>
                                         value % 1000000 == 0

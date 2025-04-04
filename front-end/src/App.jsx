@@ -1,7 +1,4 @@
-import {
-    Route,
-    Routes
-} from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import CountryInfo from "./views/CountryInfo";
 import CountryList from "./views/CountryList";

@@ -3,6 +3,38 @@ import fetchAPI from "../functions/fetchAPI";
 import { toast } from "react-toastify";
 import { Card, CardBody, CircularProgress, Flex, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../commons/Loader";
+
+const countriesFetcher = () => {
+    const [data, setData] = useState([]);
+
+    const fetch = async ({ isLoading, setIsLoading }) => {
+        setIsLoading(true);
+        try {
+            const { data: countriesAPI } = await fetchAPI.get(
+                "/get_available_countries"
+            );
+            console.log(countriesAPI);
+            if (countriesAPI?.error) {
+                setIsLoading(false);
+                return toast.error("An error has ocurred");
+            }
+            const countriesData = countriesAPI?.data;
+            setData(countriesData?.slice());
+        } catch (error) {
+            setData([]);
+            toast.error("An error has ocurred");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetch();
+    }, []);
+
+    return data;
+};
 
 export default function CountryList() {
     const [countries, setCountries] = useState([]);
@@ -28,25 +60,7 @@ export default function CountryList() {
     }, []);
 
     return isLoading ? (
-        <main>
-            <Flex
-                flexDirection={"column"}
-                width={"100%"}
-                height={"100%"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                gap={"10px"}
-            >
-                <CircularProgress
-                    color="#ff5d00"
-                    isIndeterminate
-                    size={"100px"}
-                />
-                <Text fontSize={"xl"} fontWeight={"bold"}>
-                    Loading
-                </Text>
-            </Flex>
-        </main>
+        <Loader backRoute="" />
     ) : (
         <main>
             <Text fontSize={"3xl"} className="title">
